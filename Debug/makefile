@@ -9,7 +9,7 @@ RM := rm -rf
 
 # All of the sources participating in the build are defined here
 -include sources.mk
--include Drivers/STM32F1xx_HAL_Driver/Src/subdir.mk
+-include Drivers/STM32L4xx_HAL_Driver/Src/subdir.mk
 -include Core/Startup/subdir.mk
 -include Core/Src/subdir.mk
 -include objects.mk
@@ -34,34 +34,34 @@ $(wildcard ../makefile.init) \
 $(wildcard ../makefile.targets) \
 
 
-BUILD_ARTIFACT_NAME := st7735s-display
+BUILD_ARTIFACT_NAME := stm32l433_st7735s_v1
 BUILD_ARTIFACT_EXTENSION := elf
 BUILD_ARTIFACT_PREFIX :=
 BUILD_ARTIFACT := $(BUILD_ARTIFACT_PREFIX)$(BUILD_ARTIFACT_NAME)$(if $(BUILD_ARTIFACT_EXTENSION),.$(BUILD_ARTIFACT_EXTENSION),)
 
 # Add inputs and outputs from these tool invocations to the build variables 
 EXECUTABLES += \
-st7735s-display.elf \
+stm32l433_st7735s_v1.elf \
 
 MAP_FILES += \
-st7735s-display.map \
+stm32l433_st7735s_v1.map \
 
 SIZE_OUTPUT += \
 default.size.stdout \
 
 OBJDUMP_LIST += \
-st7735s-display.list \
+stm32l433_st7735s_v1.list \
 
 
 # All Target
 all: main-build
 
 # Main-build Target
-main-build: st7735s-display.elf secondary-outputs
+main-build: stm32l433_st7735s_v1.elf secondary-outputs
 
 # Tool invocations
-st7735s-display.elf st7735s-display.map: $(OBJS) $(USER_OBJS) C:\code\student_project\st7735s-display_v2\STM32F103C6TX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "st7735s-display.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"C:\code\student_project\st7735s-display_v2\STM32F103C6TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="st7735s-display.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+stm32l433_st7735s_v1.elf stm32l433_st7735s_v1.map: $(OBJS) $(USER_OBJS) C:\code\student_project\stm32l433_st7735s_v1\STM32L433RCTXP_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "stm32l433_st7735s_v1.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\code\student_project\stm32l433_st7735s_v1\STM32L433RCTXP_FLASH.ld" --specs=nosys.specs -Wl,-Map="stm32l433_st7735s_v1.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
@@ -70,14 +70,14 @@ default.size.stdout: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
 	@echo 'Finished building: $@'
 	@echo ' '
 
-st7735s-display.list: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "st7735s-display.list"
+stm32l433_st7735s_v1.list: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "stm32l433_st7735s_v1.list"
 	@echo 'Finished building: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) default.size.stdout st7735s-display.elf st7735s-display.list st7735s-display.map
+	-$(RM) default.size.stdout stm32l433_st7735s_v1.elf stm32l433_st7735s_v1.list stm32l433_st7735s_v1.map
 	-@echo ' '
 
 secondary-outputs: $(SIZE_OUTPUT) $(OBJDUMP_LIST)

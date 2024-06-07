@@ -21,7 +21,6 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "st7735.h"
 
 /* USER CODE END Includes */
 
@@ -57,7 +56,6 @@ static void MX_SPI1_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-extern unsigned short testImage[];
 
 /* USER CODE END 0 */
 
@@ -92,8 +90,6 @@ int main(void)
   MX_GPIO_Init();
   MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
-  ST7735_Init();
-
 
   /* USER CODE END 2 */
 
@@ -104,40 +100,6 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	    //1
-//	    ST7735_DrawRect(0, 0, ST7735_X_SIZE, ST7735_Y_SIZE, ST7735_COLOR_RED);
-//	    HAL_Delay(1000);
-//	    ST7735_DrawRect(0, 0, ST7735_X_SIZE, ST7735_Y_SIZE, ST7735_COLOR_GREEN);
-//	    HAL_Delay(1000);
-//	    ST7735_DrawRect(0, 0, ST7735_X_SIZE, ST7735_Y_SIZE, ST7735_COLOR_BLUE);
-//	    HAL_Delay(1000);
-//	    ST7735_DrawRect(0, 0, ST7735_X_SIZE, ST7735_Y_SIZE, ST7735_COLOR_YELLOW);
-//	    HAL_Delay(1000);
-//	    ST7735_DrawRect(0, 0, ST7735_X_SIZE, ST7735_Y_SIZE, ST7735_COLOR_WHITE);
-//	    HAL_Delay(1000);
-//	    ST7735_DrawRect(0, 0, ST7735_X_SIZE, ST7735_Y_SIZE, ST7735_COLOR_BLACK);
-//	    HAL_Delay(1000);
-//	    ST7735_DrawRect(0, 0, ST7735_X_SIZE, ST7735_Y_SIZE, ST7735_COLOR_ORANGE);
-//	    HAL_Delay(1000);
-//
-//
-	    //2
-//	    ST7735_DrawRect(0, 0, ST7735_X_SIZE, 100, ST7735_COLOR_RED);
-//	    ST7735_DrawRect(0, 100, ST7735_X_SIZE, ST7735_Y_SIZE, ST7735_COLOR_GREEN);
-//	    HAL_Delay(1000);
-
-	    //3
-	  	ST7735_DrawRect(0, 0, ST7735_X_SIZE, ST7735_Y_SIZE, ST7735_COLOR_WHITE);
-//	    ST7735_DrawRect(0, 0, 35, 35, ST7735_COLOR_RED);
-	    ST7735_DrawRect(30, 30, 50, 50, ST7735_COLOR_RED);
-	    ST7735_DrawRect(60, 30, 80, 50, ST7735_COLOR_RED);
-	    ST7735_DrawRect(20, 50, 90, 70, ST7735_COLOR_RED);
-	    ST7735_DrawRect(30, 70, 80, 90, ST7735_COLOR_RED);
-	    ST7735_DrawRect(45, 90, 65, 110, ST7735_COLOR_RED);
-//	    ST7735_DrawRect(85, 100, 128, 160, ST7735_COLOR_BLUE);
-	    HAL_Delay(100000);
-
-
   }
   /* USER CODE END 3 */
 }
@@ -151,16 +113,25 @@ void SystemClock_Config(void)
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
 
+  /** Configure the main internal regulator output voltage
+  */
+  if (HAL_PWREx_ControlVoltageScaling(PWR_REGULATOR_VOLTAGE_SCALE1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
   */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
-  RCC_OscInitStruct.HSEPredivValue = RCC_HSE_PREDIV_DIV1;
-  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL6;
+  RCC_OscInitStruct.PLL.PLLM = 1;
+  RCC_OscInitStruct.PLL.PLLN = 12;
+  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV7;
+  RCC_OscInitStruct.PLL.PLLQ = RCC_PLLQ_DIV2;
+  RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV2;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
     Error_Handler();
@@ -172,10 +143,10 @@ void SystemClock_Config(void)
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_4) != HAL_OK)
   {
     Error_Handler();
   }
@@ -208,7 +179,9 @@ static void MX_SPI1_Init(void)
   hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
   hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
   hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
-  hspi1.Init.CRCPolynomial = 10;
+  hspi1.Init.CRCPolynomial = 7;
+  hspi1.Init.CRCLength = SPI_CRC_LENGTH_DATASIZE;
+  hspi1.Init.NSSPMode = SPI_NSS_PULSE_ENABLE;
   if (HAL_SPI_Init(&hspi1) != HAL_OK)
   {
     Error_Handler();
@@ -231,15 +204,26 @@ static void MX_GPIO_Init(void)
 /* USER CODE END MX_GPIO_Init_1 */
 
   /* GPIO Ports Clock Enable */
-  __HAL_RCC_GPIOD_CLK_ENABLE();
+  __HAL_RCC_GPIOH_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
+  __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6|GPIO_PIN_7|GPIO_PIN_8, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_11, GPIO_PIN_RESET);
 
-  /*Configure GPIO pins : PB6 PB7 PB8 */
-  GPIO_InitStruct.Pin = GPIO_PIN_6|GPIO_PIN_7|GPIO_PIN_8;
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6|GPIO_PIN_7, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin : PC11 */
+  GPIO_InitStruct.Pin = GPIO_PIN_11;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : PB6 PB7 */
+  GPIO_InitStruct.Pin = GPIO_PIN_6|GPIO_PIN_7;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
